@@ -1,4 +1,4 @@
-#include <libmatrix.h>
+#include <matrixstore.h>
 #include <stdio.h>
 #include <stdlib.h>
 

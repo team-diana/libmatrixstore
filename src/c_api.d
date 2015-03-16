@@ -10,23 +10,23 @@ extern(C) {
     static assert (is(Matrix.Element : double));
 
     SparseMatrix msSparseMatrixOpen(const(char)* directory,
-				 int defBlkRows, int defBlkCols)
-    {
-	int[2] defBlkSize = [defBlkRows, defBlkCols];
+				    int defBlkRows, int defBlkCols)
+	{
+	    int[2] defBlkSize = [defBlkRows, defBlkCols];
 
-	try {
-	    SparseMatrix ret = SparseMatrix.open(directory.fromStringz, defBlkSize);
-	    GC.addRoot(&ret);
-	    return ret;
-	} catch(Exception exc) {
-	    lastError = exc.msg.dup;
-	    return null;
+	    try {
+		SparseMatrix ret = SparseMatrix.open(directory.fromStringz, defBlkSize);
+		GC.addRoot(&ret);
+		return ret;
+	    } catch(Exception exc) {
+		lastError = exc.msg.dup;
+		return null;
+	    }
 	}
-    }
     
     int msSparseMatrixWrite(SparseMatrix sm,
-			     double *src, int numRows, int numCols,
-			     int dstRow, int dstCol)
+			    double *src, int numRows, int numCols,
+			    int dstRow, int dstCol)
     {
 	try { 
 	    Matrix mtx = new Matrix(Index(numRows, numCols),
@@ -41,9 +41,9 @@ extern(C) {
     }
 
     int msSparseMatrixRead(SparseMatrix src,
-			    double* dst,
-			    int ofsRow, int ofsCol,
-			    int numRows, int numCols)
+			   double* dst,
+			   int ofsRow, int ofsCol,
+			   int numRows, int numCols)
     {
 	try { 
 	    scope Matrix mtx = src.get(Index(ofsRow, ofsCol),

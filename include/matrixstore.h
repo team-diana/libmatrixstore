@@ -1,5 +1,5 @@
-#ifndef _LIBMATRIX_H
-#define _LIBMATRIX_H
+#ifndef _MATRIXSTORE_H
+#define _MATRIXSTORE_H
 
 #ifdef  __cplusplus
 extern "C"
@@ -27,4 +27,4 @@ extern char* msGetError(void);
 } // extern "C"
 #endif
 
-#endif /* _LIBMATRIX_H */
+#endif /* _MATRIXSTORE_H */
