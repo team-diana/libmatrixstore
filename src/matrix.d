@@ -7,7 +7,6 @@ import std.json;
 import std.mmfile;
 import std.path;
 import std.random;
-import std.random;
 import std.stdio;
 import std.string;
 
@@ -74,7 +73,7 @@ class Matrix {
     alias Element = double;
 
     const Index shape;
-    Element[] data_;
+    private Element[] data_;
 
     // these are all null if Matrix is not linked to a file
     const string filename;
@@ -112,7 +111,12 @@ class Matrix {
 	bool alreadyExisting = exists(filename);
 	
 	this.filename = filename.idup;
-	this.file = new File(this.filename, "r+");
+
+	auto openMode = "w+";
+	if (this.filename.exists)
+	    openMode = "r+";
+	this.file = new File(this.filename, openMode);
+	
 	// the last 'null' parameter lets the OS choose the address for the mapping
 	this.mmfile = new MmFile(*this.file, MmFile.Mode.readWrite, fileSize, null);
 	this.data_ = null;
@@ -267,10 +271,9 @@ class SparseMatrix {
 			pieceSize[i] = min(pieceSize[i],
 					   p.blockSize[i] - offsetInBlk[i]);
 
-		    debug {
-			writefln("block %s @ %s x %s", blockIndex,
-				 offsetInBlk, pieceSize);
-		    }
+		    debug writefln("block %s @ %s x %s",
+				   blockIndex, offsetInBlk, pieceSize);
+
 		    auto block = p.getBlock(blockIndex);
 		    int ret = dg(block, offsetInBlk, offsetInMat, pieceSize);
 		    if (ret != 0)
