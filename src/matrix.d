@@ -74,15 +74,19 @@ class Matrix {
     alias Element = double;
 
     const Index shape;
-    private MmFile mmfile; // null if Matrix is not linked to a file
-    const string filename; // null if Matrix is not linked to a file
     Element[] data_;
+
+    // these are all null if Matrix is not linked to a file
+    const string filename;
+    private File *file;
+    private MmFile mmfile;
 
     this(int[2] shape) {
     	this.shape = shape;
     	this.data_ = new Element[ shape[0] * shape[1] ];
 
 	this.mmfile = null;
+	this.file = null;
 	this.filename = null;
     }
 
@@ -95,6 +99,7 @@ class Matrix {
     	this.shape = shape;
     	this.data_ = data;
 
+	this.file = null;
 	this.mmfile = null;
 	this.filename = null;
     }
@@ -107,8 +112,9 @@ class Matrix {
 	bool alreadyExisting = exists(filename);
 	
 	this.filename = filename.idup;
+	this.file = new File(this.filename, "r+");
 	// the last 'null' parameter lets the OS choose the address for the mapping
-	this.mmfile = new MmFile(this.filename, MmFile.Mode.readWrite, fileSize, null);
+	this.mmfile = new MmFile(*this.file, MmFile.Mode.readWrite, fileSize, null);
 	this.data_ = null;
 
 	if (!alreadyExisting) {
@@ -120,9 +126,13 @@ class Matrix {
     // @disable this(this);
     
     ~this() {
-	mmfile.destroy();
+	if (mmfile) mmfile.destroy();
     }
 
+    bool isLinkedToFile() pure const nothrow {
+	return this.file !is null;
+    }
+    
     Element[] data() {
 	if (mmfile !is null)
 	    return cast(Element[]) mmfile[];
@@ -170,6 +180,16 @@ class Matrix {
 	}
     }
 
+    void lock(LockType lkType) {
+	if (this.isLinkedToFile)
+	    this.file.lock(lkType);
+    }
+
+    void unlock() {
+	if (this.isLinkedToFile)
+	    this.file.unlock();
+    }
+    
     void toString(scope void delegate(const(char)[]) sink) // const
     {
 	sink("Matrix [\n");
@@ -195,6 +215,10 @@ class SparseMatrix {
 	this.blockSize = blockSize;
     }
 
+    ~this() {
+	debug writeln("~~~ SparseMatrix destroyed now");
+    }
+    
     private string blockFileName(Index blockIndex) const {
 	auto baseName = format("block-%08x%08x", blockIndex[0], blockIndex[1]);
 	return buildPath([ this.directory, baseName ]);
@@ -266,9 +290,11 @@ class SparseMatrix {
 	foreach(block, offsetInBlk, offsetInMat, pieceSize;
 		spliceBlocks(offset, size))
 	    {
+		ret.lock(LockType.read);
 		ret.blit(*block,
 			 Region(offsetInBlk, pieceSize),
 			 offsetInMat);
+		ret.unlock();
 	    }
 	
 	return ret;
@@ -278,9 +304,11 @@ class SparseMatrix {
 	foreach(block, offsetInBlk, offsetInMat, pieceSize;
 		spliceBlocks(whereTo, matrix.shape))
 	    {
+		block.lock(LockType.readWrite);
 		block.blit(matrix,
 			   Region(offsetInMat, pieceSize),
 			   offsetInBlk);
+		block.unlock();
 	    }
     }
 
