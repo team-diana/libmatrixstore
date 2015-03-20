@@ -1,6 +1,7 @@
 #include <matrixstore.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define IN_ROWS 4
 #define IN_COLS 3
@@ -13,6 +14,8 @@ int main(int argc, char **argv) {
 	double test_output[OUT_ROWS][OUT_COLS];
 	int i, j;
 
+	srand (time (0));
+	
 	if (argc >= 2)
 		value = atof(argv[1]);
 	
@@ -28,13 +31,19 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Couldn't open matrix at %s: %s\n", matPath, msGetError());
 		return 0;
 	}
-	
-	if (!msSparseMatrixWrite(spmat, &test_mat[0][0], IN_ROWS, IN_COLS, 0, 0)) {
+
+	i = (float)rand() / RAND_MAX * 10 - 5;
+	j = (float)rand() / RAND_MAX * 10 - 5;
+	printf("Written to (%d,%d)x(%d,%d)\n", i, j, IN_ROWS, IN_COLS);
+	if (!msSparseMatrixWrite(spmat, &test_mat[0][0], IN_ROWS, IN_COLS, i, j)) {
 		fprintf(stderr, "Couldn't write matrix: %s\n", msGetError());
 		return 0;
 	}
 
-	if (!msSparseMatrixRead(spmat, &test_output[0][0], -1, -1, OUT_ROWS, OUT_COLS)) {
+	i = (float)rand() / RAND_MAX * 10 - 5;
+	j = (float)rand() / RAND_MAX * 10 - 5;
+	printf("Reading from (%d,%d)x(%d,%d)\n", i, j, OUT_ROWS, OUT_COLS);
+	if (!msSparseMatrixRead(spmat, &test_output[0][0], i, j, OUT_ROWS, OUT_COLS)) {
 		fprintf(stderr, "Couldn't read matrix: %s\n", msGetError());
 		return 0;
 	}
@@ -43,7 +52,7 @@ int main(int argc, char **argv) {
 	
 	for(i=0; i < OUT_ROWS; i++) {
 		for(j=0; j < OUT_COLS; j++) {
-			printf(" %2.2lf", test_output[i][j]);
+			printf(" % 7.2F", test_output[i][j]);
 		}
 		putchar('\n');
 	}
