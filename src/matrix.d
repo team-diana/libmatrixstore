@@ -287,6 +287,24 @@ class SparseMatrix {
         return Splicer();
     }
     
+    final Element opIndex(int[2] index ...) {
+	return opIndex(Index(index));
+    }
+    
+    final Element opIndex(Index index) {
+	auto blk = this.getBlock(index);
+        return blk[index];
+    }
+    
+    final Element opIndexAssign(Element value, int index[2] ...) {
+	return opIndexAssign(value, Index(index)x);
+    }
+    
+    final Element opIndexAssign(Element value, Index index) {
+	auto blk = this.getBlock(index);
+        return (blk[index] = value);
+    }
+    
     Matrix get(Index offset, Index size) {
         Matrix ret = new MemoryMatrix(size);
 

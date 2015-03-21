@@ -29,7 +29,12 @@ extern(C) {
 			    double *src, int numRows, int numCols,
 			    int dstRow, int dstCol)
     {
-	try { 
+	try {
+	    if (numRows == 1 && numCols == 1) {
+		sm[dstRow, dstCol] = *src;
+		return 1;
+	    }
+	    
 	    Matrix mtx = new MemoryMatrix(Index(numRows, numCols),
 					  src[0 .. (numRows*numCols)]);
 	    
@@ -46,7 +51,12 @@ extern(C) {
 			   int ofsRow, int ofsCol,
 			   int numRows, int numCols)
     {
-	try { 
+	try {
+	    if (numRows == 1 && numCols == 1) {
+		*dst = sm[ofsRow, ofsCol];
+		return 1;
+	    }
+		    
 	    Matrix mtx = src.get(Index(ofsRow, ofsCol),
 				 Index(numRows, numCols));
 	    memcpy(dst, mtx.data.ptr,
