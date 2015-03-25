@@ -198,6 +198,8 @@ class FileMatrix : Matrix {
 }
 
 class SparseMatrix {
+    alias Element = Matrix.Element;
+    
     private {
         FileMatrix[ Index ] matrices;
         const Index blockSize;
@@ -286,23 +288,25 @@ class SparseMatrix {
         
         return Splicer();
     }
-    
+
     final Element opIndex(int[2] index ...) {
 	return opIndex(Index(index));
     }
     
     final Element opIndex(Index index) {
-	auto blk = this.getBlock(index);
-        return blk[index];
+	auto blkIndex = this.findBlock(index);
+	Index idxInBlock = index - blockSize * blkIndex;
+        return getBlock(blkIndex)[idxInBlock];
     }
     
     final Element opIndexAssign(Element value, int index[2] ...) {
-	return opIndexAssign(value, Index(index)x);
+	return opIndexAssign(value, Index(index));
     }
     
     final Element opIndexAssign(Element value, Index index) {
-	auto blk = this.getBlock(index);
-        return (blk[index] = value);
+	auto blkIndex = this.findBlock(index);
+	Index idxInBlock = index - blockSize * blkIndex;
+        return (getBlock(blkIndex)[idxInBlock] = value);
     }
     
     Matrix get(Index offset, Index size) {

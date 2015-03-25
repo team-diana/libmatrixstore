@@ -4,11 +4,11 @@ VER_MINOR = 0
 VER_REV   = 1
 VERSION = $(VER_MAJOR).$(VER_MINOR).$(VER_REVISION)
 
-LIB_INSTALL_PATH = /usr/local/lib
-INCLUDE_INSTALL_PATH = /usr/local/include
+LIB_INSTALL_PATH = /usr/lib
+INCLUDE_INSTALL_PATH = /usr/include
 
 libmatrixstore.so: src/matrix.d src/c_api.d obj/druntime_mgr.o 
-	dmd -of$@ $^ -shared -gc -fPIC -defaultlib=libphobos2.so $(DMDFLAGS)
+	dmd -of$@ $^ -shared -gc -fPIC -O -defaultlib=libphobos2.so $(DMDFLAGS)
 
 obj/druntime_mgr.o: src/druntime_mgr.c
 	@mkdir -p obj
@@ -20,15 +20,18 @@ ctest: src/ctest.c libmatrixstore.so
 smwatch: src/smwatch.c libmatrixstore.so 
 	$(CC) -g -o smwatch src/smwatch.c -Iinclude -lmatrixstore -L.
 
+read: src/read.c libmatrixstore.so 
+	$(CC) -g -o $@ $< -Iinclude -lmatrixstore -L.
+
 clean:
-	rm -r libmatrixstore.so obj/ *.o ctest
+	rm -rf libmatrixstore.so obj/ *.o ctest read smwatch
 
 install: include/matrixstore.h libmatrixstore.so
 	install -t $(INCLUDE_INSTALL_PATH) include/matrixstore.h
 	install	-t $(LIB_INSTALL_PATH) libmatrixstore.so
-	ln -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR)
-	ln -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR).$(VER_MINOR)
-	ln -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR).$(VER_MINOR).$(VER_REV)
+	ln -f -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR)
+	ln -f -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR).$(VER_MINOR)
+	ln -f -s $(LIB_INSTALL_PATH)/libmatrixstore.so $(LIB_INSTALL_PATH)/libmatrixstore.so.$(VER_MAJOR).$(VER_MINOR).$(VER_REV)
 
 uninstall:
 	rm $(INCLUDE_INSTALL_PATH)/matrixstore.h

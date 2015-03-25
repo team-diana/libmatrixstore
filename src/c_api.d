@@ -53,7 +53,7 @@ extern(C) {
     {
 	try {
 	    if (numRows == 1 && numCols == 1) {
-		*dst = sm[ofsRow, ofsCol];
+		*dst = src[ofsRow, ofsCol];
 		return 1;
 	    }
 		    
