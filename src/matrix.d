@@ -102,7 +102,8 @@ class Matrix
         foreach(index; windowReg) {
             auto dstIndex = whereTo + index;
             auto srcIndex = srcRegion.offset + index;
-            debug writefln("writing %5s %s -> %s", src[srcIndex], srcIndex, dstIndex);
+            debug writefln("writing %5s %s -> %s",
+			   src[srcIndex], srcIndex, dstIndex);
             this[dstIndex] = src[srcIndex];
         }
     }
@@ -261,12 +262,12 @@ class SparseMatrix {
                     Index blockPos = blockIndex * p.blockSize;
                     Index offsetInBlk = offset - blockPos;
 
-                    Index offsetInMat = offsetInBlk;
+                    Index offsetInMat = -offsetInBlk;
                     foreach(ref x; offsetInMat)
                         x = max(0, x);
 
                     foreach(ref x; offsetInBlk)
-                        x = max(0, -x);
+                        x = max(0, x);
                     
                     Index pieceSize = size - offsetInMat;
                     foreach(i; 0 .. 2)

@@ -5,13 +5,11 @@
 
 #define IN_ROWS 4
 #define IN_COLS 3
-#define OUT_ROWS 10
-#define OUT_COLS 6
 
 int main(int argc, char **argv) {
 	double value = 0.0;
 	double test_mat[IN_ROWS][IN_COLS];
-	double test_output[OUT_ROWS][OUT_COLS];
+	double test_output[IN_ROWS+4][IN_COLS+4];
 	int i, j;
 
 	srand (time (0));
@@ -40,18 +38,17 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	i = (float)rand() / RAND_MAX * 10 - 5;
-	j = (float)rand() / RAND_MAX * 10 - 5;
-	printf("Reading from (%d,%d)x(%d,%d)\n", i, j, OUT_ROWS, OUT_COLS);
-	if (!msSparseMatrixRead(spmat, &test_output[0][0], i, j, OUT_ROWS, OUT_COLS)) {
+	printf("Reading from (%d,%d)x(%d,%d)\n", 
+		i-2, j-2, IN_ROWS+4, IN_COLS+4);
+	if (!msSparseMatrixRead(spmat, &test_output[0][0], i-2, j-2, IN_ROWS+4, IN_COLS+4)) {
 		fprintf(stderr, "Couldn't read matrix: %s\n", msGetError());
 		return 0;
 	}
 
 	msSparseMatrixClose(spmat);
 	
-	for(i=0; i < OUT_ROWS; i++) {
-		for(j=0; j < OUT_COLS; j++) {
+	for(i=0; i < IN_ROWS+4; i++) {
+		for(j=0; j < IN_COLS+4; j++) {
 			printf(" % 7.2F", test_output[i][j]);
 		}
 		putchar('\n');
